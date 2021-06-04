@@ -30,18 +30,25 @@ namespace UserDictionaryReactApp.Controllers
         {
             _logger.LogInformation("Add User called");
 
-            var photoPath = _fileHelper.CopyFile(user.Photo);
-            _logger.LogInformation("User photo saved to " + photoPath);
+            string photoFileName = null;
+
+            // User photo is optional so only try to upload and save user photo if it's not null
+            if (user.Photo != null)
+            {
+                photoFileName = _fileHelper.CopyFile(user.Photo);
+                _logger.LogInformation("User photo saved to " + photoFileName);
+            }
+
             var newUser = await _context.Users.AddAsync(new User
             {
                 FirstName = user.FirstName,
                 Surname = user.Surname,
-                Email = user.Email,
                 BirthDate = user.BirthDate,
                 Location = user.Location,
-                PhotoFileName = photoPath
+                PhotoFileName = photoFileName
             });
 
+            // If no item changed on database we couldn't save the user
             if (_context.SaveChanges() == 0)
             {
                 _logger.LogInformation("Add User failed with data: \n"+JsonConvert.SerializeObject(User));

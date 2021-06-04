@@ -14,6 +14,7 @@ namespace UserDictionaryReactApp.Helpers
         {
             _env = env;
 
+            // Sometimes WebRootPath may be null, set it to wwwroot
             if (string.IsNullOrWhiteSpace(env.WebRootPath))
             {
                 env.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
@@ -27,11 +28,21 @@ namespace UserDictionaryReactApp.Helpers
 
         public string UploadsPath => Path.Combine(_env.WebRootPath, "Uploads");
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns>A file path relative to the /wwwroot/Uploads</returns>
         public string GetFilePath(string fileName)
         {
             return Path.Combine(UploadsPath, fileName);
         }
 
+        /// <summary>
+        /// Returns an unique filename in the /wwwroot/Uploads, if failed tries it recursively
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns>A unique filename in the /wwwroot/Upload</returns>
         public string GetUniqueFileName(string fileName)
         {
             fileName = Path.GetFileName(fileName);
@@ -48,6 +59,11 @@ namespace UserDictionaryReactApp.Helpers
             return newName;
         }
 
+        /// <summary>
+        /// Copies a form file to /wwwroot/Uploads folder with an unique filename
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns>Unique filename after copy</returns>
         public string CopyFile(IFormFile file)
         {
             string uniqueFileName = GetUniqueFileName(file.FileName);
@@ -62,6 +78,11 @@ namespace UserDictionaryReactApp.Helpers
 
         public string[] ImageFormats { get; set; } = { ".jpg", ".png", ".jpeg" };
 
+        /// <summary>
+        /// Checks if provided form file is an image
+        /// </summary>
+        /// <param name="vmFile"></param>
+        /// <returns>true if provided form file is an image</returns>
         public bool IsImage(IFormFile vmFile)
         {
             bool isImage = false;
