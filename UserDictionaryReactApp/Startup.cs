@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using UserDictionaryReactApp.Data;
+using UserDictionaryReactApp.Helpers;
 
 namespace UserDictionaryReactApp
 {
@@ -32,6 +33,8 @@ namespace UserDictionaryReactApp
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            services.AddScoped<FileHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,6 +56,7 @@ namespace UserDictionaryReactApp
             app.UseSpaStaticFiles();
 
             app.UseRouting();
+            
 
             app.UseEndpoints(endpoints =>
             {
