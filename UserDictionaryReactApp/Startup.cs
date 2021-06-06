@@ -31,7 +31,7 @@ namespace UserDictionaryReactApp
             services.AddAutoMapper(cfg =>
             {
                 cfg.CreateMap<User, UserRequestModel>();
-                cfg.CreateMap<UserRequestModel, User>().ForMember(x => x.Id, opt => opt.Ignore());
+                cfg.CreateMap<UserRequestModel, User>().ForMember(x => x.Id, opt => opt.Ignore()).ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
                 cfg.CreateMap<User, UserDTO>();
                 cfg.CreateMap<ContactInformation, ContactInformationDTO>().ForMember(x => x.Type, opt => opt.MapFrom(y => y.Type.ToString()));
