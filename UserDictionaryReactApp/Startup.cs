@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using UserDictionaryReactApp.Data;
+using UserDictionaryReactApp.DTOs;
 using UserDictionaryReactApp.Helpers;
 using UserDictionaryReactApp.Models;
 using UserDictionaryReactApp.RequestModels;
@@ -31,6 +32,9 @@ namespace UserDictionaryReactApp
             {
                 cfg.CreateMap<User, UserRequestModel>();
                 cfg.CreateMap<UserRequestModel, User>().ForMember(x => x.Id, opt => opt.Ignore());
+
+                cfg.CreateMap<User, UserDTO>();
+                cfg.CreateMap<ContactInformation, ContactInformationDTO>().ForMember(x => x.Type, opt => opt.MapFrom(y => y.Type.ToString()));
             });
 
             services.AddDatabaseDeveloperPageExceptionFilter();

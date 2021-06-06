@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace UserDictionaryReactApp.Models
 {
@@ -15,6 +16,7 @@ namespace UserDictionaryReactApp.Models
 
         public int UserId { get; set; }
 
+        [JsonIgnore]
         [ForeignKey(nameof(UserId))]
         public virtual User User { get; set; }
     }

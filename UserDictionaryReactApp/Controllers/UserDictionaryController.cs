@@ -8,19 +8,21 @@ using Microsoft.EntityFrameworkCore;
 using UserDictionaryReactApp.Helpers;
 using UserDictionaryReactApp.RequestModels;
 using AutoMapper;
+using System.Collections.Generic;
+using UserDictionaryReactApp.DTOs;
 
 namespace UserDictionaryReactApp.Controllers
 {
     [Route("api/[controller]")]
-    public class UserDictionaryController : Controller
+    public class UserController : Controller
     {
-        private readonly ILogger<UserDictionaryController> _logger;
+        private readonly ILogger<UserController> _logger;
         private readonly UserDictionaryContext _context;
         private readonly FileHelper _fileHelper;
         private readonly IMapper _mapper;
 
-        public UserDictionaryController(
-            ILogger<UserDictionaryController> logger,
+        public UserController(
+            ILogger<UserController> logger,
             UserDictionaryContext context,
             FileHelper fileHelper,
             IMapper mapper)
@@ -91,6 +93,47 @@ namespace UserDictionaryReactApp.Controllers
 
             _logger.LogInformation($"User {user.FirstName} updated successfully");
             return new JsonResult(userInDb);
+        }
+
+        [HttpDelete]
+        [Route(nameof(Delete) + "/{id:int}")]
+        public async Task<StatusCodeResult> Delete(int id)
+        {
+            _logger.LogInformation("Delete User called");
+            var userInDb = await _context.Users.FindAsync(id);
+
+            if (userInDb == null)
+            {
+                return NotFound();
+            }
+
+            _context.Entry(userInDb).State = EntityState.Deleted;
+            
+            if (_context.SaveChanges() == 0)
+            {
+                _logger.LogInformation("Delete User failed with id: " + id);
+                return StatusCode(500);
+            }
+
+            _logger.LogInformation($"User `{id}` deletedsuccessfully");
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route(nameof(GetAllUsers))]
+        public async Task<IEnumerable<UserDTO>> GetAllUsers()
+        {
+            var mappedUsers = _mapper.Map<List<User>, List<UserDTO>> (await _context.Users.Include(x => x.ContactInformations).ToListAsync());
+            return mappedUsers;
+        }
+
+        [HttpGet]
+        [Route(nameof(GetUser) + "/{id:int}")]
+        public async Task<UserDTO> GetUser(int id)
+        {
+            var dbUser = await _context.Users.Include(x => x.ContactInformations).SingleOrDefaultAsync(x => x.Id == id);
+
+            return _mapper.Map<User, UserDTO>(dbUser);
         }
     }
 }
