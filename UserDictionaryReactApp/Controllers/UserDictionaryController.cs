@@ -6,6 +6,7 @@ using UserDictionaryReactApp.Models;
 using Newtonsoft.Json;
 using UserDictionaryReactApp.Helpers;
 using UserDictionaryReactApp.RequestModels;
+using AutoMapper;
 
 namespace UserDictionaryReactApp.Controllers
 {
@@ -14,50 +15,45 @@ namespace UserDictionaryReactApp.Controllers
         private readonly ILogger<UserDictionaryController> _logger;
         private readonly UserDictionaryContext _context;
         private readonly FileHelper _fileHelper;
+        private readonly IMapper _mapper;
 
         public UserDictionaryController(
             ILogger<UserDictionaryController> logger,
             UserDictionaryContext context,
-            FileHelper fileHelper)
+            FileHelper fileHelper,
+            IMapper mapper)
         {
             _logger = logger;
             _context = context;
             _fileHelper = fileHelper;
+            _mapper = mapper;
         }
 
         [HttpPost]
-        public async Task<JsonResult> Add([FromForm] CreateUserRequestModel user)
+        public async Task<JsonResult> Add([FromForm] UserRequestModel user)
         {
             _logger.LogInformation("Add User called");
-
-            string photoFileName = null;
 
             // User photo is optional so only try to upload and save user photo if it's not null
             if (user.Photo != null)
             {
-                photoFileName = _fileHelper.CopyFile(user.Photo);
-                _logger.LogInformation("User photo saved to " + photoFileName);
+                user.PhotoFileName = _fileHelper.CopyFile(user.Photo);
+                _logger.LogInformation("User photo saved to " + user.PhotoFileName);
             }
 
-            var newUser = await _context.Users.AddAsync(new User
-            {
-                FirstName = user.FirstName,
-                Surname = user.Surname,
-                BirthDate = user.BirthDate,
-                Location = user.Location,
-                PhotoFileName = photoFileName
-            });
+            var mappedUser = _mapper.Map<User, UserRequestModel>(user);
+            var newUser = await _context.Users.AddAsync(mappedUser);
 
             // If no item changed on database we couldn't save the user
             if (_context.SaveChanges() == 0)
             {
-                _logger.LogInformation("Add User failed with data: \n"+JsonConvert.SerializeObject(User));
+                _logger.LogInformation("Add User failed with data: \n"+JsonConvert.SerializeObject(user));
 
                 return new JsonResult(new {}) { StatusCode = 500};
             }
 
             _logger.LogInformation($"User {user.FirstName} saved successfully");
-            return new JsonResult(new { id=newUser.CurrentValues["Id"] });
+            return new JsonResult(new { id = newUser.CurrentValues["Id"] });
         }
     }
 }

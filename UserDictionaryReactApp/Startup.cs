@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using UserDictionaryReactApp.Data;
 using UserDictionaryReactApp.Helpers;
+using UserDictionaryReactApp.Models;
+using UserDictionaryReactApp.RequestModels;
 
 namespace UserDictionaryReactApp
 {
@@ -24,6 +26,11 @@ namespace UserDictionaryReactApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<UserDictionaryContext>(builder => builder.UseSqlServer(Configuration.GetConnectionString("UserDictionaryContext")));
+
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.CreateMap<User, UserRequestModel>();
+            });
 
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddControllersWithViews();
