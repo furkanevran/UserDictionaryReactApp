@@ -84,11 +84,10 @@ namespace UserDictionaryReactApp.Controllers
             var updatedUser = _mapper.Map(user, userInDb);
             _context.Entry(userInDb).CurrentValues.SetValues(updatedUser);
 
-            // If no item changed on database we couldn't save the user
+            // If no item changed on database we couldn't update, user probably sent no changed values
             if (await _context.SaveChangesAsync() == 0)
             {
-                _logger.LogInformation("Update User failed with data: \n" + JsonConvert.SerializeObject(user));
-                return new JsonResult(new { }) { StatusCode = 500 };
+                return new JsonResult(new { }) { StatusCode = 204 };
             }
 
             _logger.LogInformation($"User {user.FirstName} updated successfully");

@@ -65,10 +65,10 @@ namespace UserDictionaryReactApp.Controllers
             contactInDb.Type = contact.Type;
             contactInDb.Value = contact.Value;
 
+            // If no item changed on database we couldn't update, user probably sent no changed values
             if (await _context.SaveChangesAsync() == 0)
             {
-                _logger.LogInformation("Update ContactInformation failed with data:  \n" + JsonConvert.SerializeObject(contact));
-                return StatusCode(500);
+                return StatusCode(204);
             }
 
             _logger.LogInformation("Update ContactInformation success");
