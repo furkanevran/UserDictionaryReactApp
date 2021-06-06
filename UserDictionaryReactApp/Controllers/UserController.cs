@@ -10,6 +10,7 @@ using UserDictionaryReactApp.RequestModels;
 using AutoMapper;
 using System.Collections.Generic;
 using UserDictionaryReactApp.DTOs;
+using System.Linq;
 
 namespace UserDictionaryReactApp.Controllers
 {
@@ -64,21 +65,40 @@ namespace UserDictionaryReactApp.Controllers
 
         [HttpPut]
         [Route(nameof(Update) + "/{id:int}")]
-        public async Task<JsonResult> Update(int id, [FromForm] UserRequestModel user)
+        public async Task<JsonResult> Update(int id, [FromForm] UserRequestModel user, [FromQuery] bool? deleteNotExistingContacts)
         {
             _logger.LogInformation("Update User called");
+
+            //var userInDb = await _context.Users.Include(x => x.ContactInformations).SingleOrDefaultAsync(x => x.Id == id);
             var userInDb = await _context.Users.FindAsync(id);
-            user.PhotoFileName = userInDb.PhotoFileName;
 
             if (userInDb == null)
             {
                 return new JsonResult(new { }) { StatusCode = 404 };
             }
 
+            user.PhotoFileName = userInDb.PhotoFileName;
+
+
             if (user.Photo != null)
             {
                 user.PhotoFileName = _fileHelper.CopyFile(user.Photo);
                 _logger.LogInformation("User photo saved to " + user.PhotoFileName);
+            }
+
+            if (deleteNotExistingContacts == true)
+            {
+                var infosNotInRequest = await _context.ContactInformations.Where(x => x.UserId == id).ToListAsync();
+
+                for (int i = 0; i < infosNotInRequest.Count; i++)
+                {
+                    if (user.ContactInformations.All(x => x.Id != infosNotInRequest[i].Id))
+                    {
+                        infosNotInRequest.RemoveAt(i);
+                        i--;
+                    }
+                }
+                _context.ContactInformations.RemoveRange(infosNotInRequest);
             }
 
             var updatedUser = _mapper.Map(user, userInDb);
@@ -91,7 +111,7 @@ namespace UserDictionaryReactApp.Controllers
             }
 
             _logger.LogInformation($"User {user.FirstName} updated successfully");
-            return new JsonResult(userInDb);
+            return new JsonResult(await GetUser(id));
         }
 
         [HttpDelete]
