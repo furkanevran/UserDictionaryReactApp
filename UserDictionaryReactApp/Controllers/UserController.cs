@@ -51,7 +51,7 @@ namespace UserDictionaryReactApp.Controllers
             var newUser = await _context.Users.AddAsync(mappedUser);
 
             // If no item changed on database we couldn't save the user
-            if (_context.SaveChanges() == 0)
+            if (await _context.SaveChangesAsync() == 0)
             {
                 _logger.LogInformation("Add User failed with data: \n"+JsonConvert.SerializeObject(user));
                 return new JsonResult(new {}) { StatusCode = 500};
@@ -85,7 +85,7 @@ namespace UserDictionaryReactApp.Controllers
             _context.Entry(userInDb).CurrentValues.SetValues(updatedUser);
 
             // If no item changed on database we couldn't save the user
-            if (_context.SaveChanges() == 0)
+            if (await _context.SaveChangesAsync() == 0)
             {
                 _logger.LogInformation("Update User failed with data: \n" + JsonConvert.SerializeObject(user));
                 return new JsonResult(new { }) { StatusCode = 500 };
@@ -109,7 +109,7 @@ namespace UserDictionaryReactApp.Controllers
 
             _context.Entry(userInDb).State = EntityState.Deleted;
             
-            if (_context.SaveChanges() == 0)
+            if (await _context.SaveChangesAsync() == 0)
             {
                 _logger.LogInformation("Delete User failed with id: " + id);
                 return StatusCode(500);
