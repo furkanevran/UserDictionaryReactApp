@@ -140,9 +140,21 @@ namespace UserDictionaryReactApp.Controllers
 
         [HttpGet]
         [Route(nameof(GetAllUsers))]
-        public async Task<IEnumerable<UserDTO>> GetAllUsers()
+        public async Task<IEnumerable<UserDTO>> GetAllUsers([FromQuery] bool? loadContactInfo)
         {
-            var mappedUsers = _mapper.Map<List<User>, List<UserDTO>> (await _context.Users.Include(x => x.ContactInformations).ToListAsync());
+            List<User> dbUsers;
+            if (loadContactInfo == true)
+            {
+                dbUsers = await _context.Users.Include(x => x.ContactInformations).ToListAsync();
+            }
+            else
+            {
+                dbUsers = await _context.Users.ToListAsync();
+            }
+
+
+            var mappedUsers = _mapper.Map<List<User>, List<UserDTO>>(dbUsers);
+
             return mappedUsers;
         }
 

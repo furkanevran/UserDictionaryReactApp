@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UserDictionaryReactApp.Data;
 
 namespace UserDictionaryReactApp.Migrations
 {
     [DbContext(typeof(UserDictionaryContext))]
-    partial class UserDictionaryContextModelSnapshot : ModelSnapshot
+    [Migration("20210606151805_add name to the contact information model")]
+    partial class addnametothecontactinformationmodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

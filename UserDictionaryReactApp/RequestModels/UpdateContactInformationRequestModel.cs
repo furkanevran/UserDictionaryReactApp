@@ -9,6 +9,8 @@ namespace UserDictionaryReactApp.RequestModels
     public class UpdateContactInformationRequestModel
     {
         public ContactType Type { get; set; }
+        public string Name { get; set; }
+
         public string Value { get; set; }
     }
 }

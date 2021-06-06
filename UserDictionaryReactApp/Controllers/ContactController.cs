@@ -64,6 +64,7 @@ namespace UserDictionaryReactApp.Controllers
 
             contactInDb.Type = contact.Type;
             contactInDb.Value = contact.Value;
+            contactInDb.Name = contact.Name;
 
             // If no item changed on database we couldn't update, user probably sent no changed values
             if (await _context.SaveChangesAsync() == 0)

@@ -9,8 +9,8 @@ namespace UserDictionaryReactApp.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public int Id { get; set; }
-
         public ContactType Type { get; set; }
+        public string Name { get; set; }
         public string Value { get; set; }
 
 
