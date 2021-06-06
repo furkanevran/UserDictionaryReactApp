@@ -155,6 +155,23 @@ namespace UserDictionaryReactApp.Controllers
 
             var mappedUsers = _mapper.Map<List<User>, List<UserDTO>>(dbUsers);
 
+            //advanced/modified bubble sort
+            bool hasSwapped = true;
+            for (int i = 1; i < mappedUsers.Count && hasSwapped; i++)
+            {
+                hasSwapped = false;
+                for (int j = 0; j < mappedUsers.Count - i; j++)
+                {
+                    if (mappedUsers[j].FullName.CompareTo(mappedUsers[j + 1].FullName) == 1)
+                    {
+                        var temp = mappedUsers[j];
+                        mappedUsers[j] = mappedUsers[j + 1];
+                        mappedUsers[j + 1] = temp;
+                        hasSwapped = true;
+                    }
+                }
+            }
+
             return mappedUsers;
         }
 

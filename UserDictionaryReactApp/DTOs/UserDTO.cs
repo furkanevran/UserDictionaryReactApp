@@ -11,10 +11,11 @@ namespace UserDictionaryReactApp.DTOs
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string Surname { get; set; }
+        public string FullName => FirstName + " " + Surname;
         public DateTime BirthDate { get; set; }
         public string Location { get; set; }
         public string PhotoFileName { get; set; }
 
-        public ICollection<ContactInformationDTO> ContactInformations { get; set; }// = new Collection<ContactInformationDTO>();
+        public ICollection<ContactInformationDTO> ContactInformations { get; set; }
     }
 }
