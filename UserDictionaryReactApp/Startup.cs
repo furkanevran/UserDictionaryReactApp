@@ -30,6 +30,7 @@ namespace UserDictionaryReactApp
             services.AddAutoMapper(cfg =>
             {
                 cfg.CreateMap<User, UserRequestModel>();
+                cfg.CreateMap<UserRequestModel, User>().ForMember(x => x.Id, opt => opt.Ignore());
             });
 
             services.AddDatabaseDeveloperPageExceptionFilter();
