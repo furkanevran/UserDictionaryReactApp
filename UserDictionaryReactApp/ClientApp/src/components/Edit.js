@@ -19,7 +19,7 @@ export default function Edit() {
             function (res) {
                 if (res.ok) {
                     alert("Perfect! ");
-                    queryClient.invalidateQueries(["user", { id: id }]);
+                    queryClient.invalidateQueries([`user/${id}`]);
                 } else if (res.status === 401) {
                     alert("Oops! ");
                 }
@@ -30,13 +30,10 @@ export default function Edit() {
         );
     };
 
-    const { isLoading, error, data } = useQuery(
-        "id",
-        () =>
-            fetch(`${process.env.REACT_APP_API_URL}/user/GetUser/${id}`).then(
-                (res) => res.json()
-            ),
-        { id }
+    const { isLoading, error, data } = useQuery(`user/${id}`, () =>
+        fetch(`${process.env.REACT_APP_API_URL}/user/GetUser/${id}`).then(
+            (res) => res.json()
+        )
     );
 
     if (isLoading) return "Loading...";

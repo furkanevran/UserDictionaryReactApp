@@ -18,18 +18,18 @@ const getTypeIndex = (type) => {
 };
 
 export default function UserForm({
-    id,
     firstName = "",
     surname = "",
     birthDate = "",
     location = "",
     photoFileName = "",
-    contactInformations = [],
+    contactInformations,
     submitForm,
 }) {
     const [contacts, setContacts] = useState([]);
 
     useEffect(() => {
+        if (contactInformations === undefined) return;
         setContacts(
             contactInformations.map((x) => ({
                 ...x,
@@ -69,10 +69,14 @@ export default function UserForm({
 
     return (
         <form onSubmit={handleSubmit}>
-            <input value={firstName} name="firstName" required />
-            <input value={surname} name="surname" required />
-            <input value={birthDate} name="birthDate" type="datetime-local" />
-            <input value={location} name="location" />
+            <input defaultValue={firstName} name="firstName" required />
+            <input defaultValue={surname} name="surname" required />
+            <input
+                defaultValue={birthDate}
+                name="birthDate"
+                type="datetime-local"
+            />
+            <input defaultValue={location} name="location" />
             <PhotoSelector defaultPhoto={photoFileName} />
             <input type="submit" />
             <hr />
@@ -85,7 +89,7 @@ export default function UserForm({
                     {x.id && (
                         <input
                             type="hidden"
-                            value={x.id}
+                            defaultValue={x.id}
                             key={`id_${x._key}`}
                             name={`ContactInformations[${i}].Id`}
                         />
@@ -103,14 +107,14 @@ export default function UserForm({
 
                     <input
                         placeholder="Name"
-                        value={x.name}
+                        defaultValue={x.name}
                         key={`name_${x._key}`}
                         name={`ContactInformations[${i}].Name`}
                     />
 
                     <input
                         placeholder="Value"
-                        value={x.value}
+                        defaultValue={x.value}
                         key={`value${x._key}`}
                         name={`ContactInformations[${i}].Value`}
                     />
