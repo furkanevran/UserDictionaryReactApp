@@ -128,6 +128,7 @@ export default function UserForm({
                             </div>
 
                             <div>
+                                <label>Photo</label>
                                 <PhotoSelector
                                     defaultPhoto={photoFileName}
                                     fileNameChanged={setNewPhotoFileName}

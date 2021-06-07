@@ -24,6 +24,35 @@ export default function List(params) {
             </div>
         );
 
+    if (data.length === 0) {
+        return (
+            <div className="wrapper">
+                <h1 className="title">
+                    List Users{" "}
+                    <span style={{ fontSize: 24, marginLeft: 24 }}>
+                        but we couldn't find any :(
+                    </span>
+                </h1>
+
+                <Link to={`/new`}>
+                    <h1
+                        style={{
+                            position: "absolute",
+                            left: "50%",
+                            top: "70%",
+                            transform: "translateX(-50%) translateY(-50%)",
+                            padding: 36,
+                            backgroundColor: "#000",
+                            color: "#fff",
+                        }}
+                    >
+                        Start Adding a New User
+                    </h1>
+                </Link>
+            </div>
+        );
+    }
+
     return (
         <div className="wrapper">
             <h1 className="title">List Users</h1>
