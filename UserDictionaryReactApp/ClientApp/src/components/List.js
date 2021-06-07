@@ -19,7 +19,7 @@ export default function List(params) {
                 <button>New</button>
             </Link>
             {data.map((x) => (
-                <p>
+                <p key={x.id}>
                     <Link to={`/edit/${x.id}`}>{x.firstName}</Link>
                 </p>
             ))}
