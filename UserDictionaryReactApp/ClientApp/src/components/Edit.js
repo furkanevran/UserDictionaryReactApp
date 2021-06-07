@@ -1,22 +1,12 @@
 import React from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router";
+import GoBackButton from "./GoBackButton";
 import UserForm from "./UserForm";
 
 export default function Edit() {
     let { id } = useParams();
-    const { isLoading, error, data } = useQuery(
-        "user",
-        () =>
-            fetch(`${process.env.REACT_APP_API_URL}/user/GetUser/${id}`).then(
-                (res) => res.json()
-            ),
-        [{ id: id }]
-    );
-
-    if (isLoading) return "Loading...";
-
-    if (error) return "An error has occurred: " + error.message;
+    const queryClient = useQueryClient();
 
     const submitForm = (formData) => {
         fetch(
@@ -29,6 +19,7 @@ export default function Edit() {
             function (res) {
                 if (res.ok) {
                     alert("Perfect! ");
+                    queryClient.invalidateQueries(["user", { id: id }]);
                 } else if (res.status === 401) {
                     alert("Oops! ");
                 }
@@ -39,8 +30,22 @@ export default function Edit() {
         );
     };
 
+    const { isLoading, error, data } = useQuery(
+        "id",
+        () =>
+            fetch(`${process.env.REACT_APP_API_URL}/user/GetUser/${id}`).then(
+                (res) => res.json()
+            ),
+        { id }
+    );
+
+    if (isLoading) return "Loading...";
+
+    if (error) return "An error has occurred: " + error.message;
+
     return (
         <>
+            <GoBackButton />
             <UserForm {...data} submitForm={submitForm} />
         </>
     );
