@@ -37,15 +37,28 @@ namespace UserDictionaryReactApp.Controllers
         [HttpPost]
         [Route(nameof(Add))]
 
-        public async Task<JsonResult> Add([FromForm] UserRequestModel user)
+        public async Task<JsonResult> Add([FromBody] User user)
         {
             _logger.LogInformation("Add User called");
 
-            // User photo is optional so only try to upload and save user photo if it's not null
-            if (user.Photo != null)
+            if (user.FirstName == null || user.Surname == null)
             {
-                user.PhotoFileName = _fileHelper.CopyFile(user.Photo);
-                _logger.LogInformation("User photo saved to " + user.PhotoFileName);
+                return new JsonResult(new { })
+                {
+                    StatusCode = 400
+                };
+            }
+        
+
+            user.FirstName = user.FirstName.Trim();
+            user.Surname = user.Surname.Trim();
+
+            if (string.IsNullOrEmpty(user.FirstName) || string.IsNullOrEmpty(user.Surname))
+            {
+                return new JsonResult(new { })
+                {
+                    StatusCode = 400
+                };
             }
 
             var mappedUser = _mapper.Map<User, UserRequestModel>(user);
@@ -65,7 +78,7 @@ namespace UserDictionaryReactApp.Controllers
 
         [HttpPut]
         [Route(nameof(Update) + "/{id:int}")]
-        public async Task<JsonResult> Update(int id, [FromForm] UserRequestModel user, [FromQuery] bool? deleteNotExistingContacts)
+        public async Task<JsonResult> Update(int id, [FromBody] User user, [FromQuery] bool? deleteNotExistingContacts)
         {
             _logger.LogInformation("Update User called");
 
@@ -75,15 +88,6 @@ namespace UserDictionaryReactApp.Controllers
             if (userInDb == null)
             {
                 return new JsonResult(new { }) { StatusCode = 404 };
-            }
-
-            user.PhotoFileName = userInDb.PhotoFileName;
-
-
-            if (user.Photo != null)
-            {
-                user.PhotoFileName = _fileHelper.CopyFile(user.Photo);
-                _logger.LogInformation("User photo saved to " + user.PhotoFileName);
             }
 
             if (deleteNotExistingContacts == true)

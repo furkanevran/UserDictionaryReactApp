@@ -6,6 +6,5 @@ namespace UserDictionaryReactApp.RequestModels
 {
     public class UserRequestModel : User
     {
-        public IFormFile Photo { get; set; }
     }
 }
