@@ -1,14 +1,37 @@
 import React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router";
-import GoBackButton from "./GoBackButton";
 import UserForm from "./UserForm";
+import cogoToast from "cogo-toast";
+import { useHistory } from "react-router-dom";
 
 export default function Edit() {
     let { id } = useParams();
+    const routerHistory = useHistory();
     const queryClient = useQueryClient();
 
+    const deleteUser = () => {
+        fetch(`${process.env.REACT_APP_API_URL}/user/delete/${id}`, {
+            method: "DELETE",
+        }).then(
+            function (res) {
+                if (res.ok) {
+                    queryClient.invalidateQueries(["users"]);
+                    cogoToast.success("Successfully deleted user!");
+                    routerHistory.push(`/`);
+                } else {
+                    cogoToast.error("An error occured.");
+                }
+            },
+            function (e) {
+                cogoToast.error("Error while submitting form.");
+            }
+        );
+    };
+
     const submitForm = (data) => {
+        console.log(data);
+        console.log(JSON.stringify(data, null, 2));
         fetch(
             `${process.env.REACT_APP_API_URL}/user/update/${id}?deleteNotExistingContacts=true`,
             {
@@ -22,14 +45,14 @@ export default function Edit() {
         ).then(
             function (res) {
                 if (res.ok) {
-                    alert("Perfect! ");
+                    cogoToast.success("Updated!");
                     queryClient.invalidateQueries([`user/${id}`]);
-                } else if (res.status === 401) {
-                    alert("Oops! ");
+                } else if (res.status !== 204) {
+                    cogoToast.error("An error occured.");
                 }
             },
             function (e) {
-                alert("Error submitting form!");
+                cogoToast.error("Error while submitting form.");
             }
         );
     };
@@ -40,14 +63,34 @@ export default function Edit() {
         )
     );
 
-    if (isLoading) return "Loading...";
+    if (isLoading)
+        return (
+            <div className="wrapper">
+                <h1 className="title">Loading...</h1>
+            </div>
+        );
 
-    if (error) return "An error has occurred: " + error.message;
+    if (error) {
+        routerHistory.push("/");
+        cogoToast.error("Error while loading user!");
+        return (
+            <div className="wrapper">
+                <h1 className="title">Redirecting...</h1>
+                <pre>
+                    <code>{error.message}</code>
+                </pre>
+            </div>
+        );
+    }
 
     return (
-        <>
-            <GoBackButton />
-            <UserForm {...data} submitForm={submitForm} />
-        </>
+        <div className="wrapper">
+            <h1 className="title">Edit User</h1>
+            <UserForm
+                {...data}
+                submitForm={submitForm}
+                deleteUser={deleteUser}
+            />
+        </div>
     );
 }

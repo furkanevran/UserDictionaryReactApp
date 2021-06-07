@@ -52,8 +52,10 @@ export default function PhotoSelector({ defaultPhoto, fileNameChanged }) {
             <img
                 onClick={() => fileRef.current.click()}
                 style={{
-                    width: 200,
-                    height: 200,
+                    maxWidth: 400,
+                    width: "100%",
+                    height: "100%",
+                    maxHeight: 400,
                     objectFit: "cover",
                     cursor: "pointer",
                 }}
@@ -62,7 +64,7 @@ export default function PhotoSelector({ defaultPhoto, fileNameChanged }) {
                         ? preview
                         : defaultPhoto
                         ? process.env.REACT_APP_URL + "/Uploads/" + defaultPhoto
-                        : "https://via.placeholder.com/400x400"
+                        : "/select-image.png"
                 }
                 alt="Preview"
             />
@@ -74,9 +76,11 @@ export default function PhotoSelector({ defaultPhoto, fileNameChanged }) {
                 accept="image/*"
                 onChange={previewFile}
             />
-            <button type="button" onClick={clear}>
-                Reset
-            </button>
+            {preview && (
+                <button type="button" onClick={clear}>
+                    Reset
+                </button>
+            )}
         </>
     );
 }

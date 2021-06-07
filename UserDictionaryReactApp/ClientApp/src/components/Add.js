@@ -1,8 +1,8 @@
 import React from "react";
-import GoBackButton from "./GoBackButton";
 import UserForm from "./UserForm";
 import { useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
+import cogoToast from "cogo-toast";
 
 export default function Add() {
     const queryClient = useQueryClient();
@@ -21,22 +21,23 @@ export default function Add() {
                 if (res.ok) {
                     queryClient.invalidateQueries(["users"]);
                     res.json().then((data) => {
+                        cogoToast.success("Saved new user!");
                         routerHistory.push(`/edit/${data.id}`);
                     });
-                } else if (res.status === 401) {
-                    alert("Oops! ");
+                } else {
+                    cogoToast.error("An error occured.");
                 }
             },
             function (e) {
-                alert("Error submitting form!");
+                cogoToast.error("Error while submitting form.");
             }
         );
     };
+
     return (
-        <>
-            <GoBackButton />
-            <h1>Add new User</h1>
+        <div className="wrapper">
+            <h1 className="title">Add New User</h1>
             <UserForm submitForm={submitForm} />
-        </>
+        </div>
     );
 }

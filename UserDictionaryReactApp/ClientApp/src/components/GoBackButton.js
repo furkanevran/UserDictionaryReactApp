@@ -1,10 +1,16 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 
 export default function GoBackButton() {
+    const routerHistory = useHistory();
+
+    if (routerHistory.length > 1) {
+        return <button onClick={routerHistory.goBack}>Back</button>;
+    }
+
     return (
         <Link to={`/`}>
-            <button>Go to list</button>
+            <button>Go to List</button>
         </Link>
     );
 }

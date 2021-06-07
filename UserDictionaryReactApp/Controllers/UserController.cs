@@ -84,7 +84,7 @@ namespace UserDictionaryReactApp.Controllers
 
             if (user == null)
             {
-                return new JsonResult(new { }) { StatusCode = 204 };
+                return new JsonResult(new { }) { StatusCode = 400 };
             }
 
             var userInDb = await _context.Users.FindAsync(id);

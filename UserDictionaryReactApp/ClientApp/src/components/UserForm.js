@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import PhotoSelector from "./PhotoSelector";
+import GoBackButton from "./GoBackButton";
+import "./UserForm.css";
 
 const generateKey = () => {
     return `${new Date().getTime()}`;
@@ -16,7 +18,7 @@ const getTypeIndex = (type) => {
     }
 
     if (type === "Social") {
-        return 1;
+        return 2;
     }
 
     return type;
@@ -30,6 +32,7 @@ export default function UserForm({
     photoFileName = "",
     contactInformations,
     submitForm,
+    deleteUser,
 }) {
     const [newPhotoFileName, setNewPhotoFileName] = useState(null);
     const { control, register, handleSubmit } = useForm();
@@ -38,6 +41,8 @@ export default function UserForm({
         name: "contactInformations",
         keyName: "_key",
     });
+
+    const formRef = useRef();
 
     useEffect(() => {
         if (
@@ -83,77 +88,148 @@ export default function UserForm({
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <input
-                defaultValue={firstName}
-                {...register("firstName")}
-                required
-            />
+        <div>
+            <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
+                <div className="wrapper grid-form">
+                    <div>
+                        <div className="two-col">
+                            <div>
+                                <label>First Name</label>
+                                <input
+                                    defaultValue={firstName}
+                                    {...register("firstName")}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label>Surname</label>
+                                <input
+                                    defaultValue={surname}
+                                    {...register("surname")}
+                                    required
+                                />
+                            </div>
 
-            <input defaultValue={surname} {...register("surname")} required />
+                            <div>
+                                <label>Birth Date</label>
+                                <input
+                                    defaultValue={birthDate}
+                                    {...register("birthDate")}
+                                    type="datetime-local"
+                                />
+                            </div>
 
-            <input
-                defaultValue={birthDate}
-                {...register("birthDate")}
-                type="datetime-local"
-            />
+                            <div>
+                                <label>Location</label>
+                                <input
+                                    defaultValue={location}
+                                    {...register("location")}
+                                />
+                            </div>
 
-            <input defaultValue={location} {...register("location")} />
+                            <div>
+                                <PhotoSelector
+                                    defaultPhoto={photoFileName}
+                                    fileNameChanged={setNewPhotoFileName}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div className="contactInfo-header">
+                            <label>Contact Informations</label>
+                            <button type="button" onClick={addNewContact}>
+                                + Add
+                            </button>
+                        </div>
+                        <div className="contactInfos">
+                            {fields.map((x, i) => (
+                                <div key={x._key} className="contactInfo-item">
+                                    {x.id && (
+                                        <input
+                                            type="hidden"
+                                            defaultValue={x.id}
+                                            {...register(
+                                                `contactInformations.${i}.id`
+                                            )}
+                                        />
+                                    )}
 
-            <PhotoSelector
-                defaultPhoto={photoFileName}
-                fileNameChanged={setNewPhotoFileName}
-            />
+                                    <div>
+                                        <label>Type</label>
+                                        <select
+                                            placeholder="Type"
+                                            defaultValue={x.type}
+                                            {...register(
+                                                `contactInformations.${i}.type`,
+                                                {
+                                                    valueAsNumber: true,
+                                                }
+                                            )}
+                                        >
+                                            <option value={0}>Phone</option>
+                                            <option value={1}>Email</option>
+                                            <option value={2}>Social</option>
+                                        </select>
+                                    </div>
 
-            <input type="submit" />
+                                    <div>
+                                        <label>Name</label>
+                                        <input
+                                            placeholder="Name"
+                                            defaultValue={x.name}
+                                            {...register(
+                                                `contactInformations.${i}.name`
+                                            )}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label>Value</label>
+                                        <input
+                                            placeholder="Value"
+                                            defaultValue={x.value}
+                                            {...register(
+                                                `contactInformations.${i}.value`
+                                            )}
+                                        />
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => remove(i)}
+                                    >
+                                        -
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </form>
 
-            <hr />
-
-            <button type="button" onClick={addNewContact}>
-                + Contact
-            </button>
-
-            <hr />
-
-            {fields.map((x, i) => (
-                <div key={x._key}>
-                    {x.id && (
-                        <input
-                            type="hidden"
-                            defaultValue={x.id}
-                            {...register(`contactInformations.${i}.id`)}
-                        />
+            <div className="toolbar">
+                <div className="wrapper">
+                    {deleteUser && (
+                        <button
+                            style={{
+                                backgroundColor: "#cc4040",
+                                border: "1px solid #cc4040",
+                                color: "#fff",
+                            }}
+                            onClick={() => deleteUser()}
+                        >
+                            Delete
+                        </button>
                     )}
-
-                    <select
-                        placeholder="Type"
-                        {...register(`contactInformations.${i}.type`, {
-                            valueAsNumber: true,
-                            value: x.type,
-                        })}
+                    <GoBackButton />
+                    <button
+                        onClick={() =>
+                            formRef.current.dispatchEvent(new Event("submit"))
+                        }
                     >
-                        <option value={0}>Phone</option>
-                        <option value={1}>Email</option>
-                        <option value={2}>Social</option>
-                    </select>
-
-                    <input
-                        placeholder="Name"
-                        defaultValue={x.name}
-                        {...register(`contactInformations.${i}.name`)}
-                    />
-
-                    <input
-                        placeholder="Value"
-                        defaultValue={x.value}
-                        {...register(`contactInformations.${i}.value`)}
-                    />
-
-                    <button type="button" onClick={() => remove(i)}>
-                        -
+                        Save
                     </button>
                 </div>
-            ))}
-        </form>
+            </div>
+        </div>
     );
 }
