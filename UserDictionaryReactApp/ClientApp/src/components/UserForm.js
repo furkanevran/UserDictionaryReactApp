@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 import PhotoSelector from "./PhotoSelector";
 
 const generateKey = () => {
@@ -14,7 +15,11 @@ const getTypeIndex = (type) => {
         return 1;
     }
 
-    return 2;
+    if (type === "Social") {
+        return 1;
+    }
+
+    return type;
 };
 
 export default function UserForm({
@@ -26,79 +31,106 @@ export default function UserForm({
     contactInformations,
     submitForm,
 }) {
-    const [contacts, setContacts] = useState([]);
+    const [newPhotoFileName, setNewPhotoFileName] = useState(null);
+    const { control, register, handleSubmit } = useForm();
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "contactInformations",
+        keyName: "_key",
+    });
 
     useEffect(() => {
-        if (contactInformations === undefined) return;
-        setContacts(
+        if (
+            contactInformations === undefined ||
+            append === null ||
+            remove === null
+        ) {
+            return;
+        }
+
+        remove();
+
+        append(
             contactInformations.map((x) => ({
                 ...x,
-                _key: x.id + "_" + generateKey(),
+                type: Number(getTypeIndex(x.type)),
+                _key: x.id + "",
             }))
         );
-    }, [contactInformations]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [append, remove]);
 
     const addNewContact = () => {
-        setContacts([
-            ...contacts,
-            {
-                _key: generateKey(),
-                type: 0,
-                name: "",
-                value: "",
-            },
-        ]);
+        append({
+            _key: generateKey(),
+            type: 0,
+            name: "",
+            value: "",
+        });
     };
 
-    const deleteContact = (key) => {
-        setContacts(contacts.filter((x) => x._key !== key));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        const formData = new FormData(e.target);
-        if (formData.get("photo").name === "") {
-            formData.delete("photo");
+    const onSubmit = (data) => {
+        if (newPhotoFileName !== null) {
+            data["photoFileName"] = newPhotoFileName;
+        }
+        for (let i = 0; i < data.contactInformations.length; i++) {
+            delete data.contactInformations[i]._key;
         }
 
         if (submitForm) {
-            submitForm(formData);
+            submitForm(data);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <input defaultValue={firstName} name="firstName" required />
-            <input defaultValue={surname} name="surname" required />
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <input
+                defaultValue={firstName}
+                {...register("firstName")}
+                required
+            />
+
+            <input defaultValue={surname} {...register("surname")} required />
+
             <input
                 defaultValue={birthDate}
-                name="birthDate"
+                {...register("birthDate")}
                 type="datetime-local"
             />
-            <input defaultValue={location} name="location" />
-            <PhotoSelector defaultPhoto={photoFileName} />
+
+            <input defaultValue={location} {...register("location")} />
+
+            <PhotoSelector
+                defaultPhoto={photoFileName}
+                fileNameChanged={setNewPhotoFileName}
+            />
+
             <input type="submit" />
+
             <hr />
+
             <button type="button" onClick={addNewContact}>
                 + Contact
             </button>
+
             <hr />
-            {contacts.map((x, i) => (
+
+            {fields.map((x, i) => (
                 <div key={x._key}>
                     {x.id && (
                         <input
                             type="hidden"
                             defaultValue={x.id}
-                            key={`id_${x._key}`}
-                            name={`ContactInformations[${i}].Id`}
+                            {...register(`contactInformations.${i}.id`)}
                         />
                     )}
+
                     <select
                         placeholder="Type"
-                        defaultValue={getTypeIndex(x.type)}
-                        key={`type_${x._key}`}
-                        name={`ContactInformations[${i}].Type`}
+                        {...register(`contactInformations.${i}.type`, {
+                            valueAsNumber: true,
+                            value: x.type,
+                        })}
                     >
                         <option value={0}>Phone</option>
                         <option value={1}>Email</option>
@@ -108,18 +140,16 @@ export default function UserForm({
                     <input
                         placeholder="Name"
                         defaultValue={x.name}
-                        key={`name_${x._key}`}
-                        name={`ContactInformations[${i}].Name`}
+                        {...register(`contactInformations.${i}.name`)}
                     />
 
                     <input
                         placeholder="Value"
                         defaultValue={x.value}
-                        key={`value${x._key}`}
-                        name={`ContactInformations[${i}].Value`}
+                        {...register(`contactInformations.${i}.value`)}
                     />
 
-                    <button type="button" onClick={() => deleteContact(x._key)}>
+                    <button type="button" onClick={() => remove(i)}>
                         -
                     </button>
                 </div>

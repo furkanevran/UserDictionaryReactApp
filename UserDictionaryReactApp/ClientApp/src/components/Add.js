@@ -8,14 +8,17 @@ export default function Add() {
     const queryClient = useQueryClient();
     const routerHistory = useHistory();
 
-    const submitForm = (formData) => {
+    const submitForm = (data) => {
         fetch(`${process.env.REACT_APP_API_URL}/user/add`, {
             method: "POST",
-            body: formData,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
         }).then(
             function (res) {
                 if (res.ok) {
-                    alert("Perfect! ");
                     queryClient.invalidateQueries(["users"]);
                     res.json().then((data) => {
                         routerHistory.push(`/edit/${data.id}`);

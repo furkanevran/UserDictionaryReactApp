@@ -37,7 +37,7 @@ namespace UserDictionaryReactApp.Controllers
         [HttpPost]
         [Route(nameof(Add))]
 
-        public async Task<JsonResult> Add([FromBody] User user)
+        public async Task<JsonResult> Add([FromBody] Models.User user)
         {
             _logger.LogInformation("Add User called");
 
@@ -61,7 +61,7 @@ namespace UserDictionaryReactApp.Controllers
                 };
             }
 
-            var mappedUser = _mapper.Map<User, UserRequestModel>(user);
+            var mappedUser = _mapper.Map<User, User>(user);
             var newUser = await _context.Users.AddAsync(mappedUser);
 
             // If no item changed on database we couldn't save the user
@@ -78,11 +78,15 @@ namespace UserDictionaryReactApp.Controllers
 
         [HttpPut]
         [Route(nameof(Update) + "/{id:int}")]
-        public async Task<JsonResult> Update(int id, [FromBody] User user, [FromQuery] bool? deleteNotExistingContacts)
+        public async Task<JsonResult> Update(int id, [FromBody] Models.User user, [FromQuery] bool? deleteNotExistingContacts)
         {
             _logger.LogInformation("Update User called");
 
-            //var userInDb = await _context.Users.Include(x => x.ContactInformations).SingleOrDefaultAsync(x => x.Id == id);
+            if (user == null)
+            {
+                return new JsonResult(new { }) { StatusCode = 204 };
+            }
+
             var userInDb = await _context.Users.FindAsync(id);
 
             if (userInDb == null)
@@ -90,16 +94,20 @@ namespace UserDictionaryReactApp.Controllers
                 return new JsonResult(new { }) { StatusCode = 404 };
             }
 
-            if (deleteNotExistingContacts == true)
+
+            if (deleteNotExistingContacts == true )
             {
                 var infosNotInRequest = await _context.ContactInformations.Where(x => x.UserId == id).ToListAsync();
 
-                for (int i = 0; i < infosNotInRequest.Count; i++)
+                if (user.ContactInformations != null)
                 {
-                    if (user.ContactInformations.All(x => x.Id != infosNotInRequest[i].Id))
+                    for (int i = 0; i < infosNotInRequest.Count; i++)
                     {
-                        infosNotInRequest.RemoveAt(i);
-                        i--;
+                        if (user.ContactInformations.All(x => x.Id != infosNotInRequest[i].Id))
+                        {
+                            infosNotInRequest.RemoveAt(i);
+                            i--;
+                        }
                     }
                 }
                 _context.ContactInformations.RemoveRange(infosNotInRequest);

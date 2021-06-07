@@ -1,18 +1,50 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 
-export default function PhotoSelector({ defaultPhoto }) {
+export default function PhotoSelector({ defaultPhoto, fileNameChanged }) {
     const [preview, setPreview] = useState(null);
     const fileRef = useRef();
 
-    const previewFile = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
+    const previewFile = useCallback(
+        (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setPreview(reader.result);
+                };
+                reader.readAsDataURL(file);
+
+                const formData = new FormData();
+                formData.append("file", file, file.name);
+
+                fetch(`${process.env.REACT_APP_API_URL}/file/uploadimage/`, {
+                    method: "POST",
+                    body: formData,
+                }).then(
+                    function (res) {
+                        if (res.ok) {
+                            res.json().then((data) => {
+                                if (fileNameChanged) {
+                                    fileNameChanged(data.fileName);
+                                }
+                            });
+                        } else if (res.status === 400) {
+                            alert("Oops! ");
+                        }
+                    },
+                    function (e) {
+                        alert("Error submitting form!");
+                    }
+                );
+            }
+        },
+        [fileNameChanged]
+    );
+
+    const clear = () => {
+        setPreview(null);
+        fileRef.current.value = "";
+        fileNameChanged(null);
     };
 
     return (
@@ -42,13 +74,7 @@ export default function PhotoSelector({ defaultPhoto }) {
                 accept="image/*"
                 onChange={previewFile}
             />
-            <button
-                type="button"
-                onClick={() => {
-                    setPreview(null);
-                    fileRef.current.value = "";
-                }}
-            >
+            <button type="button" onClick={clear}>
                 Reset
             </button>
         </>

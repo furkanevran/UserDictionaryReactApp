@@ -8,12 +8,16 @@ export default function Edit() {
     let { id } = useParams();
     const queryClient = useQueryClient();
 
-    const submitForm = (formData) => {
+    const submitForm = (data) => {
         fetch(
-            `${process.env.REACT_APP_API_URL}/user/update/${data.id}?deleteNotExistingContacts=true`,
+            `${process.env.REACT_APP_API_URL}/user/update/${id}?deleteNotExistingContacts=true`,
             {
                 method: "PUT",
-                body: formData,
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
             }
         ).then(
             function (res) {
