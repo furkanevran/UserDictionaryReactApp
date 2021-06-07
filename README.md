@@ -4,7 +4,7 @@ I have starting doing this application because this was a election project, but,
 Well I'm pretty sure this is nothing but I've enjoyed and learnt.
 
 
-# Prerequisite
+# Prerequisites
 * SQL Server Database
 * Node.js
 * .NET 5
