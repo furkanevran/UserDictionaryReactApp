@@ -11,7 +11,7 @@ export default function App() {
     return (
         <Layout>
             <Route exact path="/" component={List} />
-            <Route path="/add/" component={Add} />
+            <Route exact path="/new/" component={Add} />
             <Route path="/edit/:id" component={Edit} />
         </Layout>
     );
